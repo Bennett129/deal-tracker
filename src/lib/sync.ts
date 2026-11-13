@@ -15,6 +15,7 @@ import {
   type AlertEmailItem,
 } from "@/emails/templates";
 import { evaluateAlert } from "./alerts";
+import { betterThumb } from "./data";
 import { appUrl } from "./auth";
 import {
   MAX_IDS_PER_REQUEST,
@@ -36,6 +37,7 @@ export async function recordGame(
 ): Promise<void> {
   const db = await getDb();
   const best = game.deals[0];
+  const thumb = await betterThumb(game.thumb);
   const cheapestEver =
     best && (game.cheapestEverCents === null || best.priceCents < game.cheapestEverCents)
       ? best.priceCents
@@ -46,7 +48,7 @@ export async function recordGame(
     .values({
       id: game.id,
       title: game.title,
-      thumb: game.thumb,
+      thumb,
       cheapestEverCents: cheapestEver,
       tracked: options.tracked ?? false,
     })
@@ -54,7 +56,7 @@ export async function recordGame(
       target: games.id,
       set: {
         title: game.title,
-        thumb: game.thumb,
+        thumb,
         cheapestEverCents: cheapestEver,
         ...(options.tracked ? { tracked: true } : {}),
       },
@@ -93,7 +95,7 @@ export async function syncPrices(): Promise<{ games: number }> {
     for (const deal of top) {
       await db
         .insert(games)
-        .values({ id: deal.gameId, title: deal.title, thumb: deal.thumb, tracked: true })
+        .values({ id: deal.gameId, title: deal.title, thumb: await betterThumb(deal.thumb), tracked: true })
         .onConflictDoUpdate({ target: games.id, set: { tracked: true } });
     }
   }

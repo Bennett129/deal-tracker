@@ -10,26 +10,49 @@ import {
   searchGames,
   type GameDetails,
 } from "./cheapshark";
+import { fetchSteamHeader, steamAppIdFromCapsule } from "./steam";
+
+/* ---------- Thumbnails ---------- */
+
+/** Steam header images rarely change, so each app is looked up at most once a day. */
+async function cachedSteamHeader(appId: string): Promise<string | null> {
+  "use cache";
+  cacheLife("days");
+  return fetchSteamHeader(appId);
+}
+
+/** Swaps a small Steam capsule for the larger header image; anything else is returned as is. */
+export async function betterThumb(thumb: string): Promise<string> {
+  const appId = steamAppIdFromCapsule(thumb);
+  if (!appId) return thumb;
+  return (await cachedSteamHeader(appId)) ?? thumb;
+}
+
+async function withBetterThumbs<T extends { thumb: string }>(items: T[]): Promise<T[]> {
+  return Promise.all(
+    items.map(async (item) => ({ ...item, thumb: await betterThumb(item.thumb) })),
+  );
+}
 
 /* ---------- CheapShark, cached briefly so page views do not hammer the API ---------- */
 
 export async function cachedTopDeals() {
   "use cache";
   cacheLife("minutes");
-  return getTopDeals(24);
+  return withBetterThumbs(await getTopDeals(24));
 }
 
 export async function cachedSearch(title: string) {
   "use cache";
   cacheLife("minutes");
-  return searchGames(title);
+  return withBetterThumbs(await searchGames(title));
 }
 
 export async function cachedGame(id: string): Promise<GameDetails | null> {
   "use cache";
   cacheLife("minutes");
   const [game] = await getGames([id]);
-  return game ?? null;
+  return game ? { ...game, thumb: await betterThumb(game.thumb) } : null;
 }
 
 export async function cachedStores() {
