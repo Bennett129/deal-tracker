@@ -8,7 +8,7 @@ import { z } from "zod";
 import { getDb } from "@/db";
 import { priceSnapshots, wishlistItems } from "@/db/schema";
 import { LoginEmail } from "@/emails/templates";
-import { createLoginLink, getSession } from "@/lib/auth";
+import { canSendLoginLink, createLoginLink, getSession } from "@/lib/auth";
 import { getGames, toCents } from "@/lib/cheapshark";
 import { sendEmail } from "@/lib/email";
 import { SESSION_COOKIE } from "@/lib/session";
@@ -27,6 +27,12 @@ export async function requestLoginLink(
     .max(200)
     .safeParse(String(formData.get("email") ?? "").trim().toLowerCase());
   if (!email.success) return { error: "Please enter a valid email address." };
+
+  if (!(await canSendLoginLink(email.data))) {
+    return {
+      error: "A sign-in link was sent to this address recently. Check your inbox, or try again in a few minutes.",
+    };
+  }
 
   const url = await createLoginLink(email.data);
   try {

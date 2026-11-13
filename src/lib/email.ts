@@ -14,6 +14,10 @@ export async function sendEmail(message: {
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
+    // In production this would print sign-in links to the logs and send nothing.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("RESEND_API_KEY is not set, so no email can be sent.");
+    }
     // Local development without a Resend key: show the email in the server console.
     console.log(
       `\n----- EMAIL (not sent: RESEND_API_KEY is not set) -----\nTo: ${to}\nSubject: ${subject}\n\n${text}\n-------------------------------------------------------\n`,
