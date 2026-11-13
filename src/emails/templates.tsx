@@ -107,7 +107,9 @@ export function DealAlertEmail({
           <Hr style={hr} />
           <Text style={small}>
             You are getting this because these games are on your{" "}
-            <Link href={wishlistUrl}>wishlist</Link>. Remove a game there to stop
+            <Link href={wishlistUrl} style={link}>
+              wishlist
+            </Link>. Remove a game there to stop
             alerts for it. Prices and links are provided by CheapShark.
           </Text>
         </Container>
@@ -116,37 +118,56 @@ export function DealAlertEmail({
   );
 }
 
+/*
+ * The site's night palette as hex: email clients do not support oklch() or CSS variables.
+ * Dark by design, so it matches the site and does not flip oddly in dark-mode inboxes.
+ */
+const colors = {
+  page: "#06131f", // --background-deep
+  panel: "#0c2335", // --background
+  card: "#123047", // --secondary
+  text: "#eef4f8", // --foreground
+  body: "#c4d3df",
+  muted: "#93a9bb", // --muted-foreground
+  moon: "#9fd9f4", // --primary, moonlight
+  onMoon: "#0b2033", // --primary-foreground
+  border: "#1f3d55",
+};
+
 const body = {
-  backgroundColor: "#f2f3f7",
+  backgroundColor: colors.page,
   fontFamily: "Helvetica, Arial, sans-serif",
   margin: 0,
   padding: "24px 0",
 };
 const container = {
-  backgroundColor: "#ffffff",
+  backgroundColor: colors.panel,
+  border: `1px solid ${colors.border}`,
   borderRadius: "12px",
   maxWidth: "520px",
   padding: "32px",
 };
-const brand = { color: "#1a7f4b", fontSize: "13px", fontWeight: 700, margin: 0 };
-const heading = { color: "#14161f", fontSize: "22px", margin: "8px 0 12px" };
-const paragraph = { color: "#3a3f52", fontSize: "15px", lineHeight: "22px" };
+const brand = { color: colors.moon, fontSize: "13px", fontWeight: 700, margin: 0 };
+const heading = { color: colors.text, fontSize: "22px", margin: "8px 0 12px" };
+const paragraph = { color: colors.body, fontSize: "15px", lineHeight: "22px" };
 const card = {
-  backgroundColor: "#f2f3f7",
+  backgroundColor: colors.card,
   borderRadius: "8px",
   margin: "12px 0",
   padding: "12px 16px 16px",
 };
-const gameTitle = { color: "#14161f", fontSize: "16px", fontWeight: 700, margin: "4px 0 0" };
-const price = { color: "#1a7f4b", fontSize: "22px", fontWeight: 700, margin: "4px 0" };
-const was = { color: "#6b7186", fontSize: "14px", fontWeight: 400 };
+const gameTitle = { color: colors.text, fontSize: "16px", fontWeight: 700, margin: "4px 0 0" };
+const price = { color: colors.moon, fontSize: "22px", fontWeight: 700, margin: "4px 0" };
+const was = { color: colors.muted, fontSize: "14px", fontWeight: 400 };
 const button = {
-  backgroundColor: "#1a7f4b",
+  backgroundColor: colors.moon,
   borderRadius: "8px",
-  color: "#ffffff",
+  color: colors.onMoon,
   fontSize: "15px",
+  fontWeight: 700,
   padding: "10px 18px",
   textDecoration: "none",
 };
-const small = { color: "#6b7186", fontSize: "13px", lineHeight: "20px" };
-const hr = { borderColor: "#e2e4ec", margin: "24px 0 12px" };
+const small = { color: colors.muted, fontSize: "13px", lineHeight: "20px" };
+const link = { color: colors.moon };
+const hr = { borderColor: colors.border, margin: "24px 0 12px" };

@@ -50,6 +50,8 @@
 
 :root {
   --background: oklch(1 0 0);
+  /* Bottom of the page gradient; the top is --background. */
+  --background-deep: oklch(0.93 0.005 265);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -83,38 +85,42 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Night palette taken from the moonlit-coast background photo. */
 .dark {
-  --background: oklch(0.17 0.02 265);
-  --foreground: oklch(0.97 0.005 265);
-  --card: oklch(0.22 0.025 265);
-  --card-foreground: oklch(0.97 0.005 265);
-  --popover: oklch(0.22 0.025 265);
-  --popover-foreground: oklch(0.97 0.005 265);
-  --primary: oklch(0.86 0.19 150);
-  --primary-foreground: oklch(0.2 0.05 150);
-  --secondary: oklch(0.28 0.03 265);
-  --secondary-foreground: oklch(0.97 0.005 265);
-  --muted: oklch(0.26 0.025 265);
-  --muted-foreground: oklch(0.72 0.02 265);
-  --accent: oklch(0.28 0.03 265);
-  --accent-foreground: oklch(0.97 0.005 265);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.86 0.19 150 / 60%);
-  --chart-1: oklch(0.86 0.19 150);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.19 0.045 240);
+  --background-deep: oklch(0.1 0.03 245);
+  --foreground: oklch(0.96 0.01 230);
+  /* Slightly see-through so the photo glows faintly behind panels. */
+  --card: oklch(0.2 0.045 240 / 82%);
+  --card-foreground: oklch(0.96 0.01 230);
+  --popover: oklch(0.22 0.045 240);
+  --popover-foreground: oklch(0.96 0.01 230);
+  /* Moonlight: the pale ice blue of the crescent. */
+  --primary: oklch(0.86 0.09 220);
+  --primary-foreground: oklch(0.2 0.05 240);
+  --secondary: oklch(0.29 0.05 240);
+  --secondary-foreground: oklch(0.96 0.01 230);
+  --muted: oklch(0.27 0.045 240);
+  --muted-foreground: oklch(0.76 0.03 230);
+  --accent: oklch(0.3 0.055 240);
+  --accent-foreground: oklch(0.96 0.01 230);
+  --destructive: oklch(0.72 0.17 22);
+  --border: oklch(0.85 0.06 230 / 14%);
+  --input: oklch(0.85 0.06 230 / 18%);
+  --ring: oklch(0.86 0.09 220 / 60%);
+  --chart-1: oklch(0.86 0.09 220);
+  --chart-2: oklch(0.62 0.12 245);
+  --chart-3: oklch(0.5 0.1 245);
+  --chart-4: oklch(0.4 0.08 245);
+  --chart-5: oklch(0.3 0.06 245);
+  --sidebar: oklch(0.2 0.045 240);
+  --sidebar-foreground: oklch(0.96 0.01 230);
+  --sidebar-primary: oklch(0.86 0.09 220);
+  --sidebar-primary-foreground: oklch(0.2 0.05 240);
+  --sidebar-accent: oklch(0.29 0.05 240);
+  --sidebar-accent-foreground: oklch(0.96 0.01 230);
+  --sidebar-border: oklch(0.85 0.06 230 / 14%);
+  --sidebar-ring: oklch(0.86 0.09 220 / 60%);
 }
 
 @layer base {
@@ -122,9 +128,31 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    isolation: isolate;
+  }
+  /*
+   * Photo background, fixed so the page scrolls over it. Drawn on a pseudo-element
+   * because background-attachment: fixed is ignored on iOS. The overlay darkens
+   * toward the bottom and keeps text readable over the bright moon and surf.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(
+        to top,
+        color-mix(in oklch, var(--background-deep) 92%, transparent),
+        color-mix(in oklch, var(--background) 45%, transparent)
+      ),
+      url("/backgrounds/moonlit-coast.webp") center 28% / cover no-repeat,
+      var(--background-deep);
   }
   html {
     @apply font-sans;
+    /* Fills any overscroll past the fixed background. */
+    background-color: var(--background-deep);
   }
 }
